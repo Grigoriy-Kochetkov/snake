@@ -4,15 +4,19 @@ from random import randrange
 
 pygame.init()
 
-RES = 500  # Раб. окно
-SIZE = 25  # Размер змейки
+RES = 700  # Раб. окно
+SIZE = 10  # Размер змейки
 
 GREY = (127, 127, 127)
+GOLD =(225, 215, 0)
 
 x, y = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
 blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
 megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+slowapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
 apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+godapple = 800, 800
+speedapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
 
 length = 1
 dirs = {'W': True, 'S': True, 'A': True, 'D': True}
@@ -21,18 +25,25 @@ dirs_ = {'UP': True, 'DOWN': True, 'LEFT': True, 'RIGHT': True}
 snake = [(x, y)]
 
 dx, dy = 0, 0
-fps = 10
+fps = 15
 
 sc = pygame.display.set_mode([RES, RES])  # окно
 
 clock = pygame.time.Clock()
 
 while True:
+    A = randrange(1, 500)
+    if A == 4:
+        godapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        pygame.draw.rect(sc, pygame.Color(GOLD), (*godapple, SIZE, SIZE))
     sc.fill(pygame.Color(GREY))
     [(pygame.draw.rect(sc, pygame.Color('green'), (i, j, SIZE, SIZE,))) for i, j in snake]
     pygame.draw.rect(sc, pygame.Color('red'), (*apple, SIZE, SIZE))
-    pygame.draw.rect(sc, pygame.Color('yellow'), (*megaapple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color('orange'), (*megaapple, SIZE, SIZE))
     pygame.draw.rect(sc, pygame.Color('black'), (*blackapple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color('blue'), (*slowapple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color(GOLD), (*godapple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color('white'), (*speedapple, SIZE, SIZE))
     pygame.display.flip()  # переворот доски
     clock.tick(fps)  # задержка
 
@@ -61,25 +72,62 @@ while True:
     snake.append((x, y))
     snake = snake[-length:]
 
+    if snake[-1] == godapple:
+        A = randrange(1, 500)
+        if A == 500:
+            godapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        godapple = 800, 800
+        length += 25
+        pygame.display.flip()
+
     if snake[-1] == apple:
         apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
         length += 1
+        fps += 1
         pygame.display.flip()
 
     if snake[-1] == megaapple:
         megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
-        length += 5
+        length += 3
+        fps += 1
+        pygame.display.flip()
+
+    if snake[-1] == speedapple:
+        speedapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        fps += 3
         pygame.display.flip()
 
     if snake[-1] == blackapple:
+        A = randrange(1, 10)
+        if A == 4:
+            godapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+            pygame.draw.rect(sc, pygame.Color(GOLD), (*godapple, SIZE, SIZE))
         blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
-        length = 1
+        if length > 1:
+            length -= 1
+        else:
+            print()
         pygame.display.flip()
 
-    if megaapple == blackapple or apple == megaapple or apple == blackapple:
+    if slowapple == snake[-1]:
+        slowapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        if fps > 5:
+            fps -= 1
+        else:
+            print()
+        pygame.display.flip()
+
+    if megaapple == blackapple or apple == megaapple or apple == blackapple or slowapple == blackapple \
+            or slowapple == megaapple or slowapple == apple or godapple == apple or godapple == megaapple \
+            or godapple == slowapple or godapple == blackapple or speedapple == apple or speedapple == blackapple\
+            or speedapple == godapple or speedapple == slowapple or speedapple == megaapple:
         blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
         megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
         apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        slowapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        godapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        speedapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        pygame.display.flip()
 
     if x < 0 or x > RES - SIZE or y < 0 or y > RES - SIZE or len(snake) != len(set(snake)):
         exit()
