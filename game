@@ -1,0 +1,88 @@
+# -*- coding: utf-8 -*-
+import pygame
+from random import randrange
+
+pygame.init()
+
+RES = 500  # Раб. окно
+SIZE = 25  # Размер змейки
+
+GREY = (127, 127, 127)
+
+x, y = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+
+length = 1
+dirs = {'W': True, 'S': True, 'A': True, 'D': True}
+dirs_ = {'UP': True, 'DOWN': True, 'LEFT': True, 'RIGHT': True}
+
+snake = [(x, y)]
+
+dx, dy = 0, 0
+fps = 10
+
+sc = pygame.display.set_mode([RES, RES])  # окно
+
+clock = pygame.time.Clock()
+
+while True:
+    sc.fill(pygame.Color(GREY))
+    [(pygame.draw.rect(sc, pygame.Color('green'), (i, j, SIZE, SIZE,))) for i, j in snake]
+    pygame.draw.rect(sc, pygame.Color('red'), (*apple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color('yellow'), (*megaapple, SIZE, SIZE))
+    pygame.draw.rect(sc, pygame.Color('black'), (*blackapple, SIZE, SIZE))
+    pygame.display.flip()  # переворот доски
+    clock.tick(fps)  # задержка
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit()
+    x += dx * SIZE
+    y += dy * SIZE
+    key = pygame.key.get_pressed()
+    if key[pygame.K_w] and dirs['W'] or key[pygame.K_UP] and dirs_['UP']:
+        dirs = {'W': True, 'S': False, 'A': True, 'D': True}
+        dirs_ = {'UP': True, 'DOWN': False, 'LEFT': True, 'RIGHT': True}
+        dx, dy = 0, -1
+    if key[pygame.K_s] and dirs['S'] or key[pygame.K_DOWN] and dirs_['DOWN']:
+        dirs = {'W': False, 'S': True, 'A': True, 'D': True}
+        dirs_ = {'UP': False, 'DOWN': True, 'LEFT': True, 'RIGHT': True}
+        dx, dy = 0, 1
+    if key[pygame.K_a] and dirs['A'] or key[pygame.K_LEFT] and dirs_['LEFT']:
+        dirs = {'W': True, 'S': True, 'A': True, 'D': False}
+        dirs_ = {'UP': True, 'DOWN': True, 'LEFT': True, 'RIGHT': False}
+        dx, dy = -1, 0
+    if key[pygame.K_d] and dirs['D'] or key[pygame.K_RIGHT] and dirs_['RIGHT']:
+        dirs = {'W': True, 'S': True, 'A': False, 'D': True}
+        dirs_ = {'UP': True, 'DOWN': True, 'LEFT': False, 'RIGHT': True}
+        dx, dy = 1, 0
+    snake.append((x, y))
+    snake = snake[-length:]
+
+    if snake[-1] == apple:
+        apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        length += 1
+        pygame.display.flip()
+
+    if snake[-1] == megaapple:
+        megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        length += 5
+        pygame.display.flip()
+
+    if snake[-1] == blackapple:
+        blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        length = 1
+        pygame.display.flip()
+
+    if megaapple == blackapple or apple == megaapple or apple == blackapple:
+        blackapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        megaapple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+        apple = randrange(0, RES, SIZE), randrange(0, RES, SIZE)
+
+    if x < 0 or x > RES - SIZE or y < 0 or y > RES - SIZE or len(snake) != len(set(snake)):
+        exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
