@@ -1,19 +1,47 @@
 # -*- coding: utf-8 -*-
 import pygame
 from random import randrange
-
+# img_dir = path.join(path.dirname(__file__), 'img')
+# snd_dir = path.join(path.dirname(__file__), 'snd')
 pygame.init()
 
 
 class game():
+    # sound = pygame.mixer.Sound(path.join(snd_dir, 'pew.wav'))
+    scoring_ = 1
     code_ = 0
     RES = 700
     SIZE = 20
     sc = pygame.display.set_mode([RES, RES])
     pygame.display.set_caption('The SNAKE._.')
+    time = 0
+    sound_ = 0.4
+    codddde = 0
+
+    def game_sound(self):
+        wav_file = 'snake_sound.wav'
+        freq = 44100
+        bitsize = -16
+        channels = 2
+        buffer = 1024
+        pygame.mixer.init(freq, bitsize, channels, buffer)
+        pygame.mixer.music.set_volume(self.sound_)
+        pygame.mixer.music.load(wav_file)
+        pygame.mixer.music.play()
+
+    def eat_sound(self):
+        wav_file1 = 'eat_sound.wav'
+        freq1 = 44100
+        bitsize1 = -16
+        channels1 = 2
+        buffer1 = 1024
+        pygame.mixer.init(freq1, bitsize1, channels1, buffer1)
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.load(wav_file1)
+        pygame.mixer.music.play()
 
     def start(self):
-        scoring = 0
+        scoring = 1
         coding = 0
         time_ = 1
         megaapple = 800, 800
@@ -29,13 +57,21 @@ class game():
         clock = pygame.time.Clock()
         font_score = pygame.font.SysFont('Times new Roman', 26, bold=True)
         font_end = pygame.font.SysFont('Arial', 66, bold=True)
-        img = pygame.image.load('sand.jpg').convert()
+        img = pygame.image.load('grass.png').convert()
+
 
         while True:
             if coding == 1:
                 scoring += 1
                 if scoring % fps == 1:
                     time_ += 1
+
+            self.scoring_ += 1
+            if self.scoring_ % fps == 0:
+                self.time += 1
+                if self.time % 44 == 1:
+                    self.game_sound()
+
             if time_ % 30 == 0:
                 megaapple = randrange(0, self.RES, self.SIZE), randrange(0, self.RES, self.SIZE)
             self.sc.blit(img, (0, 0))
@@ -62,18 +98,27 @@ class game():
                 length += 1
                 fps += 1
                 score += 1
+                # self.eat_sound()
             if snake[-1] == megaapple:
                 megaapple = 10000, 10000
-                length += 3
+                length += 5
                 self.code_ = 0
-                fps += 1
-                score += 3
+                fps += 3
+                score += 5
                 pygame.display.flip()
+                # self.eat_sound()
             # проигрыш
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
+            # if key[pygame.K_t]:
+            #     if self.codddde == 0:
+            #         self.codddde = 1
+            #         self.sound_ = 0
+            #     else:
+            #         self.codddde = 0
+            #         self.sound_ = 1
             if key[pygame.K_w] and dirs['W'] or key[pygame.K_UP] and dirs_['UP']:
                 dx, dy = 0, -1
                 dirs = {'W': True, 'S': False, 'A': True, 'D': True}
@@ -111,7 +156,7 @@ class game():
                         if event.type == pygame.QUIT:
                             exit()
                     pygame.display.flip()
-                    clock.tick(100)
+                    clock.tick(fps)
                 break
             pygame.display.flip()
             clock.tick(fps)
@@ -120,4 +165,3 @@ class game():
 while True:
     a = game()
     a.start()
-
